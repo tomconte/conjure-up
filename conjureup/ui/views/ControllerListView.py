@@ -37,7 +37,7 @@ class ControllerListView(WidgetWrap):
 
     def _build_buttons(self):
         cancel = menu_btn(on_press=self.cancel,
-                          label="\n  QUIT\n")
+                          label="\n  BACK\n")
         buttons = [
             Padding.line_break(""),
             Color.menu_button(cancel,
@@ -122,4 +122,4 @@ class ControllerListView(WidgetWrap):
         self.cb(cname)
 
     def cancel(self, btn):
-        EventLoop.exit(0)
+        self.cb(back=True)

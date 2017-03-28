@@ -5,22 +5,17 @@ from conjureup.ui.views.cloud import CloudView
 
 
 class CloudsController:
-
-    def __init__(self):
-        self.view = None
-
-    def finish(self, cloud):
-        """Show the 'newcloud' screen to enter credentials for a new
-        controller on 'cloud'.  There will not be an existing
-        controller.
+    def finish(self, cloud=None, back=False):
+        """ Once a cloud is picked, move on to naming a model
 
         Arguments:
         cloud: Cloud to create the controller/model on.
-
         """
+        if back:
+            return controllers.use('controllerpicker').render()
         app.current_cloud = cloud
         track_event("Cloud selection", app.current_cloud, "")
-        return controllers.use('newcloud').render()
+        return controllers.use('modelpicker').render()
 
     def render(self):
         "Pick or create a cloud to bootstrap a new controller on"

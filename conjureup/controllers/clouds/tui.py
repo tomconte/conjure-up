@@ -10,13 +10,6 @@ class CloudsController:
         return juju.get_controller(controller) is not None
 
     def finish(self):
-        if app.argv.model:
-            app.current_model = app.argv.model
-        else:
-            app.current_model = "conjure-up-{}-{}".format(
-                app.env['CONJURE_UP_SPELL'],
-                utils.gen_hash())
-
         if not app.argv.controller:
             app.current_controller = "conjure-up-{}-{}".format(
                 app.current_cloud,

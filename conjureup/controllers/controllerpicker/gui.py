@@ -19,7 +19,10 @@ class ControllerPicker:
                        app.current_controller,
                        app.current_cloud)
 
-    def finish(self, controller):
+    def finish(self, controller=None, back=False):
+        if back:
+            return controllers.use('spellpicker').render()
+
         if controller is None:
             return controllers.use('clouds').render()
 

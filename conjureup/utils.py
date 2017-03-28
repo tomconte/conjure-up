@@ -431,3 +431,11 @@ def is_linux():
     """ Checks if host platform is linux
     """
     return sys.platform.startswith('linux')
+
+
+def gen_model_name():
+    """ Generates a model name
+    """
+    return "conjure-up-{}-{}".format(
+        app.env['CONJURE_UP_SPELL'],
+        gen_hash())
