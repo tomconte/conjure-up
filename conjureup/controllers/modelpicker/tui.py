@@ -1,8 +1,8 @@
 """
 For headless mode, just generate a new model name and move on
 """
-from conjureup.app_config import app
 from conjureup import controllers, utils
+from conjureup.app_config import app
 
 
 class ModelPicker:

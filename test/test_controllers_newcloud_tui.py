@@ -69,7 +69,6 @@ class NewCloudTUIRenderTestCase(unittest.TestCase):
         self.mock_juju.bootstrap.assert_called_once_with(
             controller=sentinel.controllername,
             cloud=sentinel.cloudname,
-            model=sentinel.modelname,
             credential=True)
 
         self.controller.do_post_bootstrap.assert_called_once_with()

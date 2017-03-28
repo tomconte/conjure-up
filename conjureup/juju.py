@@ -162,7 +162,7 @@ def get_macaroons():
     ]
 
 
-def bootstrap(controller, cloud, model='conjure-up', series="xenial",
+def bootstrap(controller, cloud, series="xenial",
               credential=None):
     """ Performs juju bootstrap
 
@@ -172,7 +172,6 @@ def bootstrap(controller, cloud, model='conjure-up', series="xenial",
     controller: name of your controller
     cloud: name of local or public cloud to deploy to
     series: define the bootstrap series defaults to xenial
-    log: application logger
     credential: credentials key
     """
     if app.current_region is not None:
@@ -182,7 +181,6 @@ def bootstrap(controller, cloud, model='conjure-up', series="xenial",
           "--config image-stream=daily ".format(
               cloud, controller)
     cmd += "--config enable-os-upgrade=false "
-    cmd += "--default-model {} ".format(model)
     if app.argv.http_proxy:
         cmd += "--config http-proxy={} ".format(app.argv.http_proxy)
     if app.argv.https_proxy:
@@ -231,14 +229,13 @@ def bootstrap(controller, cloud, model='conjure-up', series="xenial",
         raise e
 
 
-def bootstrap_async(controller, cloud, model='conjure-up', credential=None,
+def bootstrap_async(controller, cloud, credential=None,
                     exc_cb=None):
     """ Performs a bootstrap asynchronously
     """
     return async.submit(partial(bootstrap,
                                 controller=controller,
                                 cloud=cloud,
-                                model=model,
                                 credential=credential), exc_cb,
                         queue_name=JUJU_ASYNC_QUEUE)
 
@@ -756,14 +753,14 @@ def get_model(controller, name):
         "Unable to find model: {}".format(name))
 
 
-def add_model(name, controller, cloud, allow_exists=False):
+def add_model(name, controller, cloud):
     """ Adds a model to current controller
 
     Arguments:
     controller: controller to add model in
     allow_exists: re-use an existing model, if one exists.
     """
-    if allow_exists and model_available():
+    if model_available():
         return
 
     sh = run('juju add-model {} -c {} {}'.format(name, controller, cloud),

@@ -1,9 +1,10 @@
 from urwid import Columns, Filler, Frame, Pile, Text, WidgetWrap
+
 from ubuntui.utils import Color, Padding
 from ubuntui.widgets.buttons import menu_btn
+from ubuntui.widgets.hr import HR
 from ubuntui.widgets.input import StringEditor
 from ubuntui.widgets.text import Instruction
-from ubuntui.widgets.hr import HR
 
 
 class ModelPickerView(WidgetWrap):
@@ -42,7 +43,8 @@ class ModelPickerView(WidgetWrap):
         if self.existing_models:
             rows.append(Padding.line_break(""))
             rows.append(Padding.line_break(""))
-            rows.append(Instruction("Or highlight existing model and press [ENTER]"))
+            rows.append(Instruction(
+                "Or highlight existing model and press [ENTER]"))
             rows.append(HR())
             for model in self.existing_models['models']:
                 rows.append(
@@ -66,7 +68,7 @@ class ModelPickerView(WidgetWrap):
                 on_press=self.submit,
                 label="\n  NEXT\n",
                 user_data={'model': self.suggested_model.value}),
-                                            focus_map='button_primary focus')),
+                focus_map='button_primary focus')),
             ('fixed', 2, Text("")),
         ])
 

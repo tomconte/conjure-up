@@ -16,6 +16,14 @@ class NewCloudController:
         """ runs post bootstrap script if exists
         """
         # Set provider type for post-bootstrap
+        juju.destroy_model(app.current_controller, 'default')
+
+        # Special case for deploying on controller model
+        if app.current_model != 'controller':
+            juju.add_model(app.current_model,
+                           app.current_controller,
+                           app.current_cloud)
+
         info = model_info(app.current_model)
         app.env['JUJU_PROVIDERTYPE'] = info['provider-type']
         app.env['JUJU_CONTROLLER'] = app.current_controller
@@ -65,7 +73,6 @@ class NewCloudController:
                        app.current_model))
         p = juju.bootstrap(controller=app.current_controller,
                            cloud=app.current_cloud,
-                           model=app.current_model,
                            credential=common.try_get_creds(app.current_cloud))
         if p.returncode != 0:
             pathbase = os.path.join(

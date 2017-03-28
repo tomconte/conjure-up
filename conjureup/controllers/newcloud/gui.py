@@ -24,7 +24,7 @@ class NewCloudController:
         app.ui.show_exception_message(exc)
 
     def __handle_bootstrap_done(self, future):
-        app.log.debug("handle bootstrap")
+        app.log.debug("Handle bootstrap done")
         if future.exception():
             return
         result = future.result()
@@ -47,6 +47,19 @@ class NewCloudController:
 
         track_event("Juju Bootstrap", "Done", "")
         app.ui.set_footer('Bootstrap complete.')
+
+        try:
+            juju.destroy_model(app.current_controller, 'default')
+        except Exception as e:
+            app.log.debug("Could not destroy default model "
+                          "will continue on, {}".format(e))
+
+        # Special case for deploying on controller model
+        if app.current_model != 'controller':
+            juju.add_model(app.current_model,
+                           app.current_controller,
+                           app.current_cloud)
+
         self.__post_bootstrap_exec()
 
     def __handle_add_model_done(self, future):
@@ -82,7 +95,6 @@ class NewCloudController:
         future = juju.bootstrap_async(
             controller=app.current_controller,
             cloud=cloud,
-            model=app.current_model,
             credential=credential,
             exc_cb=self.__handle_exception)
         app.bootstrap.running = future
