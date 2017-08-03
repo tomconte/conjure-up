@@ -4,8 +4,7 @@ import yaml
 
 from conjureup import controllers, juju, utils
 from conjureup.app_config import app
-from conjureup.models.credential import CredentialManager
-from conjureup.models.provider import load_schema
+from conjureup.models.provider import SchemaErrorUnknownCloud
 from conjureup.ui.views.credentials import (
     CredentialPickerView,
     NewCredentialView
@@ -16,10 +15,10 @@ from . import common
 
 class CredentialsController(common.BaseCredentialsController):
     def render(self):
-        if app.current_cloud_type == 'localhost':
+        if app.provider.cloud_type == 'localhost':
             # no credentials required for localhost
             self.finish(None)
-        elif not self.credentials:
+        elif not app.provider.credential:
             self.render_form()
         elif len(self.credentials) >= 1:
             self.render_picker()
@@ -27,7 +26,7 @@ class CredentialsController(common.BaseCredentialsController):
             self.finish(self.default_credential)
 
     def render_form(self):
-        view = NewCredentialView(self.schema, self.save_credential, self.back)
+        view = NewCredentialView(app.provider, self.save_credential, self.back)
         view.show()
 
     def render_picker(self):
@@ -47,18 +46,11 @@ class CredentialsController(common.BaseCredentialsController):
             return self.render_picker()
         return controllers.use('regions').render(back=True)
 
-    @property
-    def schema(self):
-        if hasattr(self, '_schema'):
-            return self._schema
-        self._schema = load_schema(app.current_cloud_type)
-        return self._schema
-
     def _format_creds(self, creds):
         """ Formats the credentials into strings from the widgets values
         """
         formatted = {}
-        formatted['auth-type'] = creds.AUTH_TYPE
+        formatted['auth-type'] = creds.auth_type
         for field in creds.fields():
             if not field.storable:
                 continue
@@ -68,20 +60,21 @@ class CredentialsController(common.BaseCredentialsController):
 
     def save_credential(self, credential):
         cred_path = path.join(utils.juju_path(), 'credentials.yaml')
-        cred_name = "conjure-{}-{}".format(app.current_cloud, utils.gen_hash())
+        cred_name = "conjure-{}-{}".format(app.provider.cloud,
+                                           utils.gen_hash())
 
         try:
             existing_creds = yaml.safe_load(open(cred_path))
         except:
             existing_creds = {'credentials': {}}
 
-        if app.current_cloud in existing_creds['credentials'].keys():
-            c = existing_creds['credentials'][app.current_cloud]
+        if app.provider.cloud in existing_creds['credentials'].keys():
+            c = existing_creds['credentials'][app.provider.cloud]
             c[cred_name] = self._format_creds(credential)
         else:
             # Handle the case where path exists but an entry for the cloud
             # has yet to be added.
-            existing_creds['credentials'][app.current_cloud] = {
+            existing_creds['credentials'][app.provider.cloud] = {
                 cred_name: self._format_creds(credential)
             }
 
@@ -89,27 +82,14 @@ class CredentialsController(common.BaseCredentialsController):
             cred_f.write(yaml.safe_dump(existing_creds,
                                         default_flow_style=False))
 
-        try:
-            # Load our recently saved credential so we can login to any
-            # applicable providers
-            credential_manager = CredentialManager(app.current_cloud,
-                                                   cred_name)
-            refresh_credentials = credential_manager.to_dict()
-            refresh_credentials.update({'host': credential.endpoint.value})
-            credential.login(refresh_credentials)
-        except:
-            # Some providers dont expose a login method, just
-            # ignore that
-            pass
-
         # if it's a new MAAS or VSphere cloud, save it now that
         # we have a credential
-        if app.current_cloud_type in ['maas', 'vsphere']:
+        if app.provider.cloud_type in ['maas', 'vsphere']:
             try:
-                juju.get_cloud(app.current_cloud)
-            except LookupError:
-                juju.add_cloud(app.current_cloud,
-                               credential.cloud_config())
+                juju.get_cloud(app.provider.cloud)
+            except SchemaErrorUnknownCloud:
+                juju.add_cloud(app.provider.cloud,
+                               app.provider.cloud_config())
 
         # This should return the credential name so juju bootstrap knows
         # which credential to bootstrap with

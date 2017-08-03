@@ -13,40 +13,40 @@ class BaseRegionsController:
 
     @property
     def default_region(self):
-        if app.current_cloud not in self._default_regions:
+        if app.provider.cloud not in self._default_regions:
             default_region = None
             if len(self.regions) == 1:
                 default_region = self.regions[0]
             if not default_region:
-                creds = juju.get_credentials().get(app.current_cloud, {})
+                creds = juju.get_credentials().get(app.provider.cloud, {})
                 default_region = creds.get('default-region', None)
             if not default_region:
                 try:
-                    schema = load_schema(app.current_cloud)
+                    schema = load_schema(app.provider.cloud)
                     default_region = schema.default_region
                 except Exception:
                     # if we can't find a schema for this cloud,
                     # just assume no default
                     pass
-            self._default_regions[app.current_cloud] = default_region
-        return self._default_regions[app.current_cloud]
+            self._default_regions[app.provider.cloud] = default_region
+        return self._default_regions[app.provider.cloud]
 
     @property
     def regions(self):
-        if app.current_cloud not in self._regions:
-            if app.current_cloud_type in ['maas', 'localhost']:
+        if app.provider.cloud not in self._regions:
+            if app.provider.cloud_type in ['maas', 'localhost']:
                 # No regions for these providers
                 regions = []
             else:
-                regions = sorted(juju.get_regions(app.current_cloud).keys())
-            self._regions[app.current_cloud] = regions
-        return self._regions[app.current_cloud]
+                regions = sorted(juju.get_regions(app.provider.cloud).keys())
+            self._regions[app.provider.cloud] = regions
+        return self._regions[app.provider.cloud]
 
     def finish(self, region):
-        app.current_region = region
-        if app.current_cloud_type == 'localhost':
+        app.provider.region = region
+        if app.provider.cloud_type == 'localhost':
             controllers.use('lxdsetup').render()
-        elif app.current_cloud_type == 'vsphere':
+        elif app.provider.cloud_type == 'vsphere':
             controllers.use('vspheresetup').render()
         else:
             controllers.use('controllerpicker').render()

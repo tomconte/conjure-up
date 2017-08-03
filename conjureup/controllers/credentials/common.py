@@ -4,7 +4,7 @@ from conjureup.app_config import app
 
 class BaseCredentialsController:
     def __init__(self):
-        creds = juju.get_credentials().get(app.current_cloud, {})
+        creds = juju.get_credentials().get(app.provider.cloud, {})
         creds.pop('default-region', None)
 
         self.default_credential = creds.pop('default-credential', None)
@@ -16,5 +16,5 @@ class BaseCredentialsController:
         self.was_picker = False
 
     def finish(self, cred):
-        app.current_credential = cred
+        app.provider.credential = cred
         controllers.use('regions').render()

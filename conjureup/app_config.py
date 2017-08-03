@@ -42,18 +42,21 @@ vsphere = SimpleNamespace(
 class AppConfig:
     """ Application config storage
     """
+    # MAAS client
+    # TODO: move this into MAAS provider
+    maas = maas
+    # VSphere Client if exists
+    # TODO: move this into VSphere provider
+    vsphere = vsphere
 
     # Juju bootstrap details
     bootstrap = bootstrap
 
-    # MAAS client
-    maas = maas
+    # Juju Provider
+    provider = None
 
     # Juju Client
     juju = juju
-
-    # VSphere Client if exists
-    vsphere = vsphere
 
     # The conjure-up UI framework
     ui = None
@@ -78,26 +81,6 @@ class AppConfig:
 
     # Whether the JAAS controller is selected
     is_jaas = False
-
-    current_model = None
-
-    # Model defaults
-    current_model_defaults = None
-
-    # Current Juju controller selected
-    current_controller = None
-
-    # Current Juju cloud selected
-    current_cloud = None
-
-    # Current Juju cloud type selected
-    current_cloud_type = None
-
-    # Current Juju cloud region
-    current_region = None
-
-    # Current credential name selected
-    current_credential = None
 
     # Current UI View rendered
     current_view = None

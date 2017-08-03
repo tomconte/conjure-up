@@ -6,7 +6,7 @@ from . import common
 
 class CredentialsController(common.BaseCredentialsController):
     def render(self):
-        if app.current_cloud_type == 'localhost':
+        if app.provider.cloud_type == 'localhost':
             # no credentials required for localhost
             self.finish(None)
         elif not self.credentials:
@@ -15,7 +15,7 @@ class CredentialsController(common.BaseCredentialsController):
                           "found.  If you wish to supply those "
                           "credentials please run "
                           "`juju add-credential "
-                          "{}`.".format(app.current_cloud))
+                          "{}`.".format(app.provider.cloud))
             events.Shutdown.set(1)
         elif not self.default_credential:
             utils.warning("You attempted to install against a cloud with "
