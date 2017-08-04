@@ -11,7 +11,7 @@ CHANNEL := edge
 .PHONY: sysdeps
 sysdeps:
 	@sudo apt-get update
-	@sudo apt-get -qqyf install jq python3-yaml bsdtar bridge-utils software-properties-common snapcraft python3-dev tox shellcheck build-essential
+	@sudo apt-get -qqyf install jq python3-yaml bsdtar bridge-utils software-properties-common snapcraft python3-dev tox shellcheck build-essential redis-server
 
 travis-sysdeps:
 	@sudo add-apt-repository -y ppa:ubuntu-lxc/lxd-stable
@@ -71,6 +71,8 @@ git_rev:
 
 dev: clean
 	tox -e conjure-dev
+	ln -s /usr/bin/lxd conjure-dev/bin/conjure-up.lxd
+	ln -s /usr/bin/lxc conjure-dev/bin/conjure-up.lxc
 	@echo "Run 'source conjure-dev/bin/activate' to enter the dev venv"
 
 # Fix some of the python formatting preferred by pylint
