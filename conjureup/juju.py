@@ -381,7 +381,7 @@ def get_compatible_clouds(cloud_types=None):
         # LXD not available on macOS
         cloud_types -= {'localhost'}
 
-    if app.provider.controller:
+    if app.provider and app.provider.controller:
         # if we already have a controller, we should query
         # it via the API for what clouds it supports; for now,
         # though, just assume it's JAAS and hard-code the options

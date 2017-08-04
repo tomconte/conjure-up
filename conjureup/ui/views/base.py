@@ -119,7 +119,7 @@ class SchemaFormView(BaseView):
                 Text(self.header),
                 HR(),
             ])
-        for field in app.form.fields():
+        for field in app.provider.form.fields():
             label = field.key
             if field.label is not None:
                 label = field.label
