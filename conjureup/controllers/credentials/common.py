@@ -15,6 +15,5 @@ class BaseCredentialsController:
 
         self.was_picker = False
 
-    def finish(self, cred):
-        app.provider.credential = cred
+    def finish(self):
         controllers.use('regions').render()

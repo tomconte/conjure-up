@@ -17,16 +17,17 @@ class CredentialsController(common.BaseCredentialsController):
     def render(self):
         if app.provider.cloud_type == 'localhost':
             # no credentials required for localhost
-            self.finish(None)
+            self.finish()
         elif not app.provider.credential:
             self.render_form()
         elif len(self.credentials) >= 1:
             self.render_picker()
         else:
-            self.finish(self.default_credential)
+            app.provider.credential = self.default_credential
+            self.finish()
 
     def render_form(self):
-        view = NewCredentialView(app.provider, self.save_credential, self.back)
+        view = NewCredentialView(self.save_credential, self.back)
         view.show()
 
     def render_picker(self):
@@ -44,24 +45,24 @@ class CredentialsController(common.BaseCredentialsController):
             # take them back to the picker, not to the cloud selection
             self.was_picker = False
             return self.render_picker()
-        return controllers.use('regions').render(back=True)
+        return controllers.use('clouds').render()
 
-    def _format_creds(self, creds):
+    def _format_creds(self):
         """ Formats the credentials into strings from the widgets values
         """
         formatted = {}
-        formatted['auth-type'] = creds.auth_type
-        for field in creds.fields():
+        formatted['auth-type'] = app.provider.auth_type
+        for field in app.provider.form.fields():
             if not field.storable:
                 continue
             formatted[field.key] = field.value
 
         return formatted
 
-    def save_credential(self, credential):
+    def save_credential(self):
         cred_path = path.join(utils.juju_path(), 'credentials.yaml')
-        cred_name = "conjure-{}-{}".format(app.provider.cloud,
-                                           utils.gen_hash())
+        app.provider.credential = "conjure-{}-{}".format(app.provider.cloud,
+                                                         utils.gen_hash())
 
         try:
             existing_creds = yaml.safe_load(open(cred_path))
@@ -70,12 +71,12 @@ class CredentialsController(common.BaseCredentialsController):
 
         if app.provider.cloud in existing_creds['credentials'].keys():
             c = existing_creds['credentials'][app.provider.cloud]
-            c[cred_name] = self._format_creds(credential)
+            c[app.provider.credential] = self._format_creds()
         else:
             # Handle the case where path exists but an entry for the cloud
             # has yet to be added.
             existing_creds['credentials'][app.provider.cloud] = {
-                cred_name: self._format_creds(credential)
+                app.provider.credential: self._format_creds()
             }
 
         with open(cred_path, 'w') as cred_f:
@@ -93,7 +94,7 @@ class CredentialsController(common.BaseCredentialsController):
 
         # This should return the credential name so juju bootstrap knows
         # which credential to bootstrap with
-        self.finish(cred_name)
+        self.finish()
 
 
 _controller_class = CredentialsController
