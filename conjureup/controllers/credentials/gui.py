@@ -22,7 +22,6 @@ class CredentialsController(common.BaseCredentialsController):
         elif len(self.credentials) >= 1:
             self.render_picker()
         else:
-            app.provider.credential = self.default_credential
             self.finish()
 
     def render_form(self):
@@ -30,8 +29,9 @@ class CredentialsController(common.BaseCredentialsController):
         view.show()
 
     def render_picker(self):
-        view = CredentialPickerView(self.credentials, self.default_credential,
-                                    self.finish, self.switch, self.back)
+        view = CredentialPickerView(self.credentials, app.provider.credential,
+                                    self.set_credential_from_select,
+                                    self.switch, self.back)
         view.show()
 
     def switch(self):
@@ -57,6 +57,10 @@ class CredentialsController(common.BaseCredentialsController):
             formatted[field.key] = field.value
 
         return formatted
+
+    def set_credential_from_select(self, credential_name):
+        app.provider.credential = credential_name
+        self.finish()
 
     def save_credential(self):
         cred_path = path.join(utils.juju_path(), 'credentials.yaml')

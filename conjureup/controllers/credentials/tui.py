@@ -17,7 +17,7 @@ class CredentialsController(common.BaseCredentialsController):
                           "`juju add-credential "
                           "{}`.".format(app.provider.cloud))
             events.Shutdown.set(1)
-        elif not self.default_credential:
+        elif not app.provider.credential:
             utils.warning("You attempted to install against a cloud with "
                           "multiple credentials and no default credentials "
                           "set.  Please set a default credential with:\n"
@@ -25,7 +25,6 @@ class CredentialsController(common.BaseCredentialsController):
                           "    juju set-default-credential {} <credential>")
             events.Shutdown.set(1)
         else:
-            app.provider.credential = self.default_credential
             self.finish()
 
 
