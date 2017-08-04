@@ -36,9 +36,9 @@ from conjureup.download import (
     get_remote_url
 )
 from conjureup.log import setup_logging
+from conjureup.models.provider import SchemaErrorUnknownCloud, load_schema
 from conjureup.telemetry import SENTRY_DSN, track_event, track_screen
 from conjureup.ui import ConjureUI
-from conjureup.models.provider import load_schema, SchemaErrorUnknownCloud
 
 
 def parse_options(argv):

@@ -2,6 +2,7 @@ import ipaddress
 from collections import OrderedDict
 from functools import partial
 from subprocess import CalledProcessError
+from types import SimpleNamespace
 from urllib.parse import urljoin, urlparse
 
 from ubuntui.widgets.input import (
@@ -20,7 +21,6 @@ from conjureup.utils import (
     get_physical_network_interfaces,
     is_valid_hostname
 )
-from types import SimpleNamespace
 from conjureup.vsphere import VSphereClient, VSphereInvalidLogin
 
 
@@ -89,6 +89,7 @@ class Field:
 class Form:
     """ Form containing widget fields
     """
+
     def __init__(self, widgets):
         self._fields = []
         for w in widgets:
@@ -382,21 +383,21 @@ class Google(BaseProvider):
                 widget=StringEditor(),
                 key='private-key'
             ),
-             Field(
-                 label='client id',
-                 widget=StringEditor(),
-                 key='client-id'
-             ),
-             Field(
-                 label='client email',
-                 widget=StringEditor(),
-                 key='client-email'
-             ),
-             Field(
-                 label='project id',
-                 widget=StringEditor(),
-                 key='project-id'
-             )]
+                Field(
+                label='client id',
+                widget=StringEditor(),
+                key='client-id'
+            ),
+                Field(
+                label='client email',
+                widget=StringEditor(),
+                key='client-email'
+            ),
+                Field(
+                label='project id',
+                widget=StringEditor(),
+                key='project-id'
+            )]
         )
 
 

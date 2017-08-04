@@ -150,7 +150,7 @@ class AppConfig:
     def _redis_key(self):
         """ Internal, formatted redis namespace key
         """
-        return "conjure-up.{}.{}".format(self.current_cloud_type,
+        return "conjure-up.{}.{}".format(self.provider.cloud_type,
                                          self.config['spell'])
 
     def to_json(self):
