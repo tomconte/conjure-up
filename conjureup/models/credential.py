@@ -51,13 +51,14 @@ class VSphereCredential(BaseCredential):
 class CredentialManager:
     CREDENTIALS = [VSphereCredential]
 
-    def __init__(self, cloud, credential_name):
+    def __init__(self, cloud, cloud_type, credential_name):
         self.credential_name = credential_name
         self.cloud = cloud
+        self.cloud_type = cloud_type
         self.credential_obj = self._get_credential_object()
 
     def _get_credential_object(self):
-        cloud_type = get_cloud_types_by_name().get(self.cloud)
+        cloud_type = get_cloud_types_by_name().get(self.cloud_type)
         for credential in self.CREDENTIALS:
             if credential.check_cloud_type(cloud_type):
                 return credential(self.cloud,

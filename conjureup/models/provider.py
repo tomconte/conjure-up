@@ -2,7 +2,6 @@ import ipaddress
 from collections import OrderedDict
 from functools import partial
 from subprocess import CalledProcessError
-from types import SimpleNamespace
 from urllib.parse import urljoin, urlparse
 
 from ubuntui.widgets.input import (
@@ -14,7 +13,7 @@ from ubuntui.widgets.input import (
 from urwid import Text
 
 from conjureup.app_config import app
-from conjureup.juju import add_cloud, get_cloud, get_credential
+from conjureup.juju import get_cloud
 from conjureup.models.credential import CredentialManager
 from conjureup.utils import (
     arun,
@@ -222,7 +221,7 @@ class AWS(BaseProvider):
     async def configure_tools(self):
         """ Configure AWS CLI.
         """
-        creds = CredentialManager(self.cloud, self.credential)
+        creds = CredentialManager(self.cloud, self.cloud_type, self.credential)
         for key, value in creds.to_dict().items():
             try:
                 await arun(['aws', 'configure', '--profile', self.credential],
@@ -533,7 +532,7 @@ class VSphere(BaseProvider):
         if self.authenticated:
             return
 
-        cm = CredentialManager(self.cloud, self.credential)
+        cm = CredentialManager(self.cloud, self.cloud_type, self.credential)
         self.client = VSphereClient(host=self.endpoint,
                                     **cm.to_dict())
 
